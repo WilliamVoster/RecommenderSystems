@@ -1,7 +1,9 @@
 # **Stack Thor - Recommender System Group Project**
 
 Storm Jan Anton Visser
+
 Thor William Voster
+
 Tristan Elias Wolfram
 
 ## About
