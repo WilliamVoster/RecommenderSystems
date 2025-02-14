@@ -31,11 +31,32 @@ Each article is represented as a **feature vector**, combining:
 - **TF-IDF representation of keywords** (to capture article content)
 - **One-hot encoding of genres** (to capture categorical information)
 
-Example representation:
-```
-Article 1: [0.6, 0.7, 0.5] (TF-IDF keywords) + [1, 0, 0] (One-hot genres)
-Article 2: [0.8, 0.9, 0.6] (TF-IDF keywords) + [0, 1, 0] (One-hot genres)
-```
+#### **How to Combine TF-IDF and One-Hot Encoding?**
+Since the number of words in **TF-IDF** is much larger than the number of **genres**, we **concatenate** the two feature representations instead of summing them:
+
+\[
+\text{Final Article Feature Vector} = [ \text{TF-IDF} \ || \ \text{One-Hot Genres} ]
+\]
+
+where **"||"** means concatenation (placing one vector next to the other, not adding element-wise).
+
+##### **Example**
+Imagine we have:
+- **TF-IDF vector** (for a small vocabulary of 5 words):
+  \[
+  [0.2, 0.8, 0.0, 0.3, 0.1]
+  \]
+- **One-hot genre vector** (for 3 genres):
+  \[
+  [0, 1, 0]
+  \]
+
+Then, the **final combined vector** is:
+\[
+[0.2, 0.8, 0.0, 0.3, 0.1, || 0, 1, 0]
+\]
+
+This ensures we capture both **textual meaning** and **categorical genre information** in the same feature representation.
 
 ---
 
@@ -50,6 +71,8 @@ User\_Profile = \frac{1}{N} \sum_{j \in Clicked\_Articles} Article\_Vector_j
 \]
 
 This creates a **weighted preference vector** representing the user’s interests.
+
+Since user profiles are built as **the average of clicked article vectors**, they will have the same structure as articles (same dimensions), making similarity calculations easy.
 
 ---
 
@@ -106,9 +129,7 @@ A higher score means the article is **more relevant** for the user.
 
 ## 6. Enhancements & Considerations
 🚀 **Cold Start Problem?** → Use **popular articles** for new users.
-
 🚀 **Diversity?** → Mix **high-score** and **exploratory** recommendations.
-
 🚀 **Real-Time Updates?** → Update user profiles dynamically after each click.
 
 By following this structured approach, we create a **scalable and adaptive content-based news recommender system**! 🚀
