@@ -106,7 +106,9 @@ A higher score means the article is **more relevant** for the user.
 
 ## 6. Enhancements & Considerations
 🚀 **Cold Start Problem?** → Use **popular articles** for new users.
+
 🚀 **Diversity?** → Mix **high-score** and **exploratory** recommendations.
+
 🚀 **Real-Time Updates?** → Update user profiles dynamically after each click.
 
 By following this structured approach, we create a **scalable and adaptive content-based news recommender system**! 🚀
