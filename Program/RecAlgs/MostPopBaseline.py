@@ -4,7 +4,9 @@ def RecommendMostPopular(PossibleArticles, PastBehaviors, CurrentTime, TimePenal
         Score = GetPopularityScore(Article, PastBehaviors, CurrentTime, TimePenaltyPerHour, TimePenaltyStart)
         ScoreTuple = (Article["NewsID"], Score)
         PossibleArticlesSortedWithScore.append(ScoreTuple)
-    return PossibleArticlesSortedWithScore
+
+    PossibleArticlesSortedWithScore.sort(key=lambda x: x[1], reverse=True)
+    return PossibleArticlesSortedWithScore[:10]
 
 
 def GetPopularityScore(Article, PastBehaviors, CurrentTime, TimePenaltyPerHour, TimePenaltyStart):
