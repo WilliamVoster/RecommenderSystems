@@ -25,7 +25,7 @@ class CollaborativeFiltering:
     def initialize(self):
 
         print("Initializing collaborative filtering...")
-        interaction_matrix = self.interactions.copy(deep=True)
+        interaction_matrix = self.raw_interactions.copy(deep=True)
 
 
         print("apply start")
