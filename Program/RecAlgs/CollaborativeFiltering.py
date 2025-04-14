@@ -37,21 +37,21 @@ class CollaborativeFiltering:
 
 
         print("sparse matrix start")
-        user_mapping = {u: i for i, u in enumerate(exploded["UserID"].unique())}
-        item_mapping = {u: i for i, u in enumerate(exploded["History"].unique())}
+        self.user_mapping = {u: i for i, u in enumerate(exploded["UserID"].unique())}
+        self.item_mapping = {u: i for i, u in enumerate(exploded["History"].unique())}
 
-        user_indicies = exploded["UserID"].map(user_mapping).values
-        item_indicies = exploded["History"].map(item_mapping).values
+        user_indicies = exploded["UserID"].map(self.user_mapping).values
+        item_indicies = exploded["History"].map(self.item_mapping).values
 
         interaction_matrix = sp.csr_matrix(
             (np.ones(len(user_indicies)), (user_indicies, item_indicies)),
-            shape=(len(user_mapping), len(item_mapping))
+            shape=(len(self.user_mapping), len(self.item_mapping))
         )
 
         self.df_interaction_matrix = pd.DataFrame.sparse.from_spmatrix(
             interaction_matrix, 
-            index=user_mapping.keys(), 
-            columns=item_mapping.keys()
+            index=self.user_mapping.keys(), 
+            columns=self.item_mapping.keys()
         )
     
         self.calc_ALS_sparse(self.df_interaction_matrix, self.epochs)
@@ -112,7 +112,7 @@ class CollaborativeFiltering:
             predicted_values = predicted[observed[0], observed[1]]
             loss = torch.nn.functional.mse_loss(predicted_values, actual)
 
-            print(f"Epoch {epoch+1}/{epochs}, Loss: {loss.item()}")
+            print(f"Epoch {epoch + 1}/{epochs}, Loss: {loss.item()}")
 
         # extracts user and item factors
         # user_factors = user_embeddings.detach().numpy()
@@ -124,11 +124,18 @@ class CollaborativeFiltering:
         # return user_embeddings, item_embeddings
 
 
-    def getRecommended(self, possible_articles:pd.DataFrame, user_id:int, k: int = 10) -> float: # return ranked list of 10 articles
+    def getRecommended(self, user_id:str, k: int = 10): # return ranked list of 10 articles
+
+        if isinstance(user_id, str):
+            user_id = self.user_mapping.get(user_id, -1)
+
+        if user_id == -1: return np.array([])
 
         scores = self.predicted_scores[user_id]
+
         top_items = torch.topk(scores, k=k).indices.numpy()
         return top_items
+    
 
 
 def get_interactions_by_user(user_id: int, interaction_matrix: sp.csr_matrix) -> np.ndarray:
