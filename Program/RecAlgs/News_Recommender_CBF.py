@@ -223,7 +223,6 @@ class NewsRecommenderCBF:
     def recommend(self, user_id, top_n=10):
         user_profile = self._build_user_profile(user_id, alpha=0.8)
         if user_profile is None:
-            print(f"No profile for user {user_id}.")
             return []
 
         A = user_profile
@@ -234,7 +233,9 @@ class NewsRecommenderCBF:
         top_k_indices = np.argsort(sim_scores[0])[::-1][:top_n]
 
         ids = self.items.iloc[top_k_indices]["news_id"].tolist()
-        return ids
+        scores = sim_scores[0, top_k_indices].tolist()
+
+        return list(zip(ids, scores))  # returns list of (news_id, score)
 
     # Output Functions
 

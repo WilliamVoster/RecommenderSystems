@@ -123,18 +123,20 @@ class CollaborativeFiltering:
 
         # return user_embeddings, item_embeddings
 
-
-    def getRecommended(self, user_id:str, k: int = 10): # return ranked list of 10 articles
-
+    def getRecommended(self, user_id: str, k: int = 10):  # return ranked list of 10 articles
         if isinstance(user_id, str):
             user_id = self.user_mapping.get(user_id, -1)
 
-        if user_id == -1: return np.array([])
+        if user_id == -1:
+            return []
 
-        scores = self.predicted_scores[user_id]
+        scores = self.predicted_scores[user_id]  # assumed to be a 1D torch tensor
 
-        top_items = torch.topk(scores, k=k).indices.numpy()
-        return top_items
+        top_items = torch.topk(scores, k=k)
+        indices = top_items.indices.numpy()
+        values = top_items.values.numpy()
+
+        return list(zip(indices, values))  # returns list of (id, score) tuples
     
 
 

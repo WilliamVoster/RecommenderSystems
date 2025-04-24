@@ -1,25 +1,23 @@
-def RecommendMostPopular(PossibleArticles, PastBehaviors, CurrentTime, TimePenaltyPerHour, TimePenaltyStart):
-    ClickedIDs = set()
-    for instance in PastBehaviors.itertuples(index=False):
-        ClickedIDs.update(instance.ClickData)
+def RecommendMostPopular(PossibleArticles, CurrentTime, GlobalPopularitySorted, TimePenaltyPerHour, TimePenaltyStart):
+    AvailableIDs = set(PossibleArticles["NewsID"])
+    ReleaseDates = dict(zip(PossibleArticles["NewsID"], PossibleArticles["ReleaseDate"]))
 
-    PossibleArticlesSortedWithScore = []
+    Recommendations = []
+    tried = 0
 
-    for article in PossibleArticles.itertuples(index=False):
-        NewsID = article.NewsID
-        ReleaseDate = article.ReleaseDate
+    for NewsID, BaseScore in GlobalPopularitySorted:
+        if NewsID in AvailableIDs:
+            ReleaseDate = ReleaseDates[NewsID]
+            DeltaTime = CurrentTime - ReleaseDate
+            Score = ApplyTimeMultiplierToScore(DeltaTime, BaseScore, TimePenaltyPerHour, TimePenaltyStart)
+            Recommendations.append((NewsID, Score))
 
-        ArticleIDClicked = NewsID + "-1"
-        Score = sum(1 for click in ClickedIDs if click == ArticleIDClicked)
+            if len(Recommendations) >= 10 and tried >= 10:
+                break
 
-        # Time-based score adjustment
-        DeltaTime = CurrentTime - ReleaseDate
-        Score = ApplyTimeMultiplierToScore(DeltaTime, Score, TimePenaltyPerHour, TimePenaltyStart)
+        tried += 1
 
-        PossibleArticlesSortedWithScore.append((NewsID, Score))
-
-    PossibleArticlesSortedWithScore.sort(key=lambda x: x[1], reverse=True)
-    return PossibleArticlesSortedWithScore[:10]
+    return sorted(Recommendations, key=lambda x: x[1], reverse=True)[:10]
 
 
 def ApplyTimeMultiplierToScore(DeltaTime, Score, TimePenaltyPerHour, TimePenaltyStart):
