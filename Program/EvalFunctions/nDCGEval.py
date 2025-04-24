@@ -1,29 +1,19 @@
 import numpy as np
 
+import numpy as np
+
 
 def DCG(Relevance):
-    return np.sum(Relevance / np.log2(np.arange(2, len(Relevance) + 2)))  # log base 2, starts at rank 1
+    return np.sum(Relevance / np.log2(np.arange(2, len(Relevance) + 2)))
 
 
 def nDCG(Recommendations, GT):
-    """
-    Compute Normalized Discounted Cumulative Gain (nDCG).
+    Relevance = np.array(GetRelevantGT(Recommendations, GT), dtype=float)
 
-    Parameters:
-    - actual_clicks (list): Ground truth, 1 if article was clicked, 0 otherwise.
-    - predicted_ranking (list): Ordered list of recommended article relevance scores.
+    DCGScore = DCG(Relevance)
 
-    Returns:
-    - nDCG score (float between 0 and 1).
-    """
-    GT = np.array(GetRelevantGT(Recommendations, GT))
-    Recommendations = np.array(Recommendations)
-
-    # Compute DCG for the given ranking
-    DCGScore = DCG(Recommendations)
-
-    # Compute IDCG (ideal ranking where all clicked articles are at the top)
-    idealRanking = np.sort(GT)[::-1]  # Sort actual clicks in descending order
+    # Ideal DCG: all relevant items (1s) at the top
+    idealRanking = np.sort(Relevance)[::-1]
     IDCGScore = DCG(idealRanking)
 
     return DCGScore / IDCGScore if IDCGScore > 0 else 0

@@ -1,27 +1,30 @@
 def RecommendMostPopular(PossibleArticles, PastBehaviors, CurrentTime, TimePenaltyPerHour, TimePenaltyStart):
+    ClickedIDs = set()
+    for instance in PastBehaviors.itertuples(index=False):
+        ClickedIDs.update(instance.ClickData)
+
     PossibleArticlesSortedWithScore = []
-    for Article in PossibleArticles:
-        Score = GetPopularityScore(Article, PastBehaviors, CurrentTime, TimePenaltyPerHour, TimePenaltyStart)
-        ScoreTuple = (Article["NewsID"], Score)
-        PossibleArticlesSortedWithScore.append(ScoreTuple)
+
+    for article in PossibleArticles.itertuples(index=False):
+        NewsID = article.NewsID
+        ReleaseDate = article.ReleaseDate
+
+        ArticleIDClicked = NewsID + "-1"
+        Score = sum(1 for click in ClickedIDs if click == ArticleIDClicked)
+
+        # Time-based score adjustment
+        DeltaTime = CurrentTime - ReleaseDate
+        Score = ApplyTimeMultiplierToScore(DeltaTime, Score, TimePenaltyPerHour, TimePenaltyStart)
+
+        PossibleArticlesSortedWithScore.append((NewsID, Score))
 
     PossibleArticlesSortedWithScore.sort(key=lambda x: x[1], reverse=True)
     return PossibleArticlesSortedWithScore[:10]
 
 
-def GetPopularityScore(Article, PastBehaviors, CurrentTime, TimePenaltyPerHour, TimePenaltyStart):
-    Score = 0
-    ArticleIDClicked = Article["NewsID"] + "-1"
-    for Instance in PastBehaviors:
-        if ArticleIDClicked in Instance["ClickData"]:
-            Score += 1
-    PubTime = Article["ReleaseDate"]
-    DeltaTime = CurrentTime - PubTime
-    Score = ApplyTimeMultiplierToScore(DeltaTime, Score, TimePenaltyPerHour, TimePenaltyStart)
-    return Score
-
-
 def ApplyTimeMultiplierToScore(DeltaTime, Score, TimePenaltyPerHour, TimePenaltyStart):
+    if Score == 0:
+        return Score
     # Get the total hours since publication
     HoursSincePublication = DeltaTime.total_seconds() / 3600  # Convert seconds to hours
 
