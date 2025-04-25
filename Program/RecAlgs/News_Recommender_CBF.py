@@ -153,7 +153,7 @@ class NewsRecommenderCBF:
         idx_map = pd.Series(self.items.index, index=self.items["news_id"])
         idxs = [idx_map[a] for a in click_list if a in idx_map]
         if not idxs:
-            print(user)
+            # print(user)
             return None
 
         M = self.combined_matrix[idxs]
@@ -230,7 +230,10 @@ class NewsRecommenderCBF:
 
         sim_scores = cosine_similarity(A, B)
 
-        top_k_indices = np.argsort(sim_scores[0])[::-1][:top_n]
+        if top_n <= 0:
+            top_k_indices = np.argsort(sim_scores[0])[::-1]  # all sorted
+        else:
+            top_k_indices = np.argsort(sim_scores[0])[::-1][:top_n]
 
         ids = self.items.iloc[top_k_indices]["news_id"].tolist()
         scores = sim_scores[0, top_k_indices].tolist()

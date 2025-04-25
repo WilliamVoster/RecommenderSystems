@@ -1,4 +1,4 @@
-def RecommendMostPopular(PossibleArticles, CurrentTime, GlobalPopularitySorted, TimePenaltyPerHour, TimePenaltyStart):
+def RecommendMostPopular(PossibleArticles, CurrentTime, GlobalPopularitySorted, TimePenaltyPerHour, TimePenaltyStart, amount):
     AvailableIDs = set(PossibleArticles["NewsID"])
     ReleaseDates = dict(zip(PossibleArticles["NewsID"], PossibleArticles["ReleaseDate"]))
 
@@ -16,8 +16,9 @@ def RecommendMostPopular(PossibleArticles, CurrentTime, GlobalPopularitySorted, 
                 break
 
         tried += 1
-
-    return sorted(Recommendations, key=lambda x: x[1], reverse=True)[:10]
+    if amount >= 0:
+        return sorted(Recommendations, key=lambda x: x[1], reverse=True)
+    return sorted(Recommendations, key=lambda x: x[1], reverse=True)[:amount]
 
 
 def ApplyTimeMultiplierToScore(DeltaTime, Score, TimePenaltyPerHour, TimePenaltyStart):
